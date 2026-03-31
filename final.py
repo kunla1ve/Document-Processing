@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 30 21:24:53 2026
+Created on Tue Mar 31 21:06:46 2026
 
-@author: hongl
+@author: kunlave
 """
-
 
 """
 PDF/Excel批量转换与合并工具
@@ -27,30 +26,107 @@ OUTPUT_FOLDER = DESKTOP
 
 # ==================== 产品映射表 ====================
 PRODUCT_MAPPING = [
-    ('SI', 'SV', '白銀', 'COMEX'), ('MGC', 'MGC', '微型黃金', 'COMEX'),
-    ('6B', 'BP', '英鎊', 'CME'), ('QG', 'QG', '迷你天然氣', 'NYMEX'),
-    ('CL', 'CL', '輕原油', 'NYMEX'), ('CN', 'CN', '富时中国A50', 'CME'),
-    ('NQ', 'NQ', '迷你納指', 'CME'), ('E-MINI S&P', 'E-MINI S&P', '迷你標普', 'CME'),
-    ('YM', 'YM', '小道瓊', 'CBOT'), ('MYM', 'MYM', '微型道瓊', 'CBOT'),
-    ('ZB', 'US', '30年美債', 'CBOT'), ('6A', 'AD', '澳元', 'CME'),
-    ('ES', 'E-MINI S&P', '迷你標普', 'CME'), ('MES', 'MES', '微型標普', 'CME'),
-    ('MNQ', 'MNQ', '微型納指', 'CME'), ('GC', 'GD', '黃金', 'COMEX'),
-    ('QI', 'QI', '迷你白銀', 'COMEX'), ('PL', 'PL', '鉑金', 'NYMEX'),
-    ('MET', 'MET', '金屬指數', 'COMEX'), ('MBT', 'MBT', '迷你美債', 'CBOT'),
-    ('TWN', 'TW', '台股指數', 'SGX'), ('TOPIXM', 'TPXTOPIXM', '東證指數', 'SGX'),
-    ('BTC', 'BTC', '比特幣', 'CME'), ('SIL', 'SIL', '微型白銀', 'COMEX'),
-    ('UC', 'UC', '人民幣指數', 'SGX'), ('CT', 'CT', '棉花', 'NYBOT'),
-    ('HO', 'HO', '熱燃油', 'NYMEX'), ('MEU', 'MEU', '歐盟指數', 'CME'),
-    ('ZN', 'TY', '10年美債', 'CBOT'), ('JY', 'JY', '日圓', 'CME'),
-    ('BO', 'BO', '黃豆油', 'CBOT'), ('W', 'W', '小麥', 'CBOT'),
-    ('MCU', 'CA', '高級銅', 'COMEX'), ('GD', 'GD', '黃金', 'COMEX'),
-    ('SV', 'SI', '白銀', 'COMEX'), ('AD', '6A', '澳元', 'CME'),
-    ('TY', 'ZN', '10年美債', 'CBOT'), ('CA', 'MCU', '高級銅', 'COMEX'),
-    ('SM', 'SM', '瘦豬期貨', 'CME'), ('S', 'S', '黃豆期貨', 'CBOT'),
-    ('LC', 'LC', '活牛期貨', 'CME'), ('LH', 'LH', '瘦肉豬期貨', 'CME'),
-    ('SB', 'SB', '糖11號期貨', 'NYMEX'), ('B', 'B', '布蘭特原油', 'NYMEX'),
-    ('COPPER', 'HG', '銅期貨', 'COMEX'), ('SGP', 'SGP', '新加坡交易所', 'SGX'),
-    ('GIN', 'GIN', '印度Nifty 50指數', 'SGX'), ('QM', 'QM', '微型原油期貨', 'NYMEX')
+    ('SI', 'SV', '白銀', 'COMEX'),
+    ('MGC', 'MGC', '微型黃金', 'COMEX'),
+    ('6B', 'BP', '英鎊', 'CME'),
+    ('QG', 'QG', '迷你天然氣', 'NYMEX'),
+    ('CL', 'CL', '輕原油', 'NYMEX'),
+    ('CN', 'CN', '富时中国A50', 'SGX'),
+    ('NQ', 'NQ', '迷你納指', 'CME'),
+    ('E-MINI S&P', 'E-MINI S&P', '迷你標普', 'CME'),
+    ('YM', 'YM', '小道瓊', 'CBOT'),
+    ('MYM', 'MYM', '微型道瓊', 'CBOT'),
+    ('ZB', 'US', '30年美債', 'CBOT'),
+    ('6A', 'AD', '澳元', 'CME'),
+    ('ES', 'E-MINI S&P', '迷你標普', 'CME'),
+    ('MES', 'MES', '微型標普', 'CME'),
+    ('MNQ', 'MNQ', '微型納指', 'CME'),
+    ('GC', 'GD', '黃金', 'COMEX'),
+    ('QI', 'QI', '迷你白銀', 'COMEX'),
+    ('PL', 'PL', '鉑金', 'NYMEX'),
+    ('MET', 'MET', '金屬指數', 'COMEX'),
+    ('MBT', 'MBT', '迷你美債', 'CME'),
+    ('TWN', 'TW', '台股指數', 'SGX'),
+    ('TOPIXM', 'TPXTOPIXM', '東證指數', 'TSE'),
+    ('BTC', 'BTC', '比特幣', 'CME'),
+    ('SIL', 'SIL', '微型白銀', 'COMEX'),
+    ('UC', 'UC', '人民幣指數', 'SGX'),
+    ('CT', 'CT', '棉花', 'NYBOT'),
+    ('HO', 'HO', '熱燃油', 'NYMEX'),
+    ('MEU', 'MEU', '歐盟指數', 'CME'),
+    ('ZN', 'TY', '10年美債', 'CBOT'),
+    ('JY', 'JY', '日圓', 'CME'),
+    ('BO', 'BO', '黃豆油', 'CBOT'),
+    ('W', 'W', '小麥', 'CBOT'),
+    ('MCU', 'CA', '高級銅', 'COMEX'),
+    ('GD', 'GD', '黃金', 'COMEX'),
+    ('SV', 'SI', '白銀', 'COMEX'),
+    ('AD', '6A', '澳元', 'CME'),
+    ('TY', 'ZN', '10年美債', 'CBOT'),
+    ('CA', 'MCU', '高級銅', 'COMEX'),
+    ('SM', 'SM', '瘦豬期貨', 'CME'),
+    ('S', 'S', '黃豆期貨', 'CBOT'),
+    ('LC', 'LC', '活牛期貨', 'CME'),
+    ('LH', 'LH', '瘦肉豬期貨', 'CME'),
+    ('SB', 'SB', '糖11號期貨', 'NYBOT'),
+    ('B', 'B', '布蘭特原油', 'ICEU'),
+    ('COPPER', 'HG', '銅期貨', 'COMEX'),
+    ('SGP', 'SGP', '新加坡交易所', 'SGX'),
+    ('GIN', 'GIN', '印度Nifty 50指數', 'SGX'),
+    ('QM', 'QM', '微型原油期貨', 'NYMEX'),
+    # 以下为根据对应表补充的新条目
+    ('', 'C', '玉米期货', 'CBOT'),
+    ('', 'FV', '5年期美国国债期货', 'CBOT'),
+    ('', 'TU', '2年期美国国债期货', 'CBOT'),
+    ('', 'UB', '超长期美国国债期货', 'CBOT'),
+    ('', 'US', '30年期美国国债期货', 'CBOT'),
+    ('', 'ZC', '玉米期货', 'CBOT'),
+    ('', 'ZM', '豆粕期货', 'CBOT'),
+    ('', 'ZT', '2年期美国国债期货', 'CBOT'),
+    ('', 'A', '澳元外汇期货', 'CME'),
+    ('', 'BP', '英镑外汇期货', 'CME'),
+    ('', 'CD', '加元外汇期货', 'CME'),
+    ('', 'CPO', '原油期货', 'CME'),
+    ('', 'E7', '微型欧元外汇期货', 'CME'),
+    ('', 'ETH', '以太币期货', 'CME'),
+    ('', 'EU', '欧元外汇期货', 'CME'),
+    ('', 'EW', '欧元/英镑交叉汇率期货', 'CME'),
+    ('', 'FC', '活牛期货', 'CME'),
+    ('', 'J7', '微型日元外汇期货', 'CME'),
+    ('', 'M2K', '微型罗素2000指数期货', 'CME'),
+    ('', 'MJY', '微型日元外汇期货', 'CME'),
+    ('', 'MSL', '微型白银期货', 'COMEX'),
+    ('', 'NIY', '日经225指数期货', 'CME'),
+    ('', 'NK', '日经225指数期货', 'CME'),
+    ('', 'NZD', '新西兰元外汇期货', 'CME'),
+    ('', 'RTY', '罗素2000指数期货', 'CME'),
+    ('', 'RY', '罗素2000指数期货', 'CME'),
+    ('', 'SOL', '索拉纳币期货', 'CME'),
+    ('', 'SW', '瑞士法郎外汇期货', 'CME'),
+    ('', 'HGCP', '铜期货', 'COMEX'),
+    ('', 'QO', '迷你黄金期货', 'COMEX'),
+    ('', 'EB', '欧元债券期货', 'EUREX'),
+    ('', 'FDAX', '德国DAX指数期货', 'EUREX'),
+    ('', 'FESX', '欧元Stoxx50指数期货', 'EUREX'),
+    ('', 'FGBM', '德国长期债券期货', 'EUREX'),
+    ('', 'BC', '布伦特原油期货', 'IPE'),
+    ('', 'PO', '棕榈油期货', 'KLCE'),
+    ('', 'GL', '黄金期货', 'LIFFE'),
+    ('', 'MAL', '铝合金期货', 'LME'),
+    ('', 'KC', '咖啡期货', 'NYBOT'),
+    ('', 'OJ', '浓缩橙汁期货', 'NYBOT'),
+    ('', 'MCL', '微型原油期货', 'NYMEX'),
+    ('', 'MINICRUDE', '微型原油期货', 'NYMEX'),
+    ('', 'MININATGS', '迷你天然气期货', 'NYMEX'),
+    ('', 'NG', '天然气期货', 'NYMEX'),
+    ('', 'PA', '钯金期货', 'NYMEX'),
+    ('', 'RB', '汽油期货', 'NYMEX'),
+    ('', 'MININK', '迷你日经225指数期货', 'OSE'),
+    ('', 'YT', '澳大利亚10年期国债期货', 'SFE'),
+    ('', 'TF', '富时中国A50指数期货', 'SGX'),
+    ('', 'IN', '印度卢比/美元外汇期货', 'SGX'),
+    ('', 'JRU', '橡胶期货', 'SGX'),
+    ('', 'SG', '新加坡海峡时报指数期货', 'SGX'),
 ]
 
 # 构建映射字典
@@ -460,12 +536,3 @@ if __name__ == "__main__":
     print(f"输出文件夹: {OUTPUT_FOLDER}")
     print()
     process_files()
-
-
-
-
-
-
-
-
-
