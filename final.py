@@ -25,6 +25,7 @@ INPUT_FOLDER = DESKTOP / "20260327"
 OUTPUT_FOLDER = DESKTOP
 
 # ==================== 产品映射表 ====================
+#(Globex代码 -> ClearPort旧码)
 PRODUCT_MAPPING = [
     ('SI', 'SV', '白銀', 'COMEX'),
     ('MGC', 'MGC', '微型黃金', 'COMEX'),
