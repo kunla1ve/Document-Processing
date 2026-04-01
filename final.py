@@ -28,7 +28,7 @@ from pathlib import Path
 # ==================== 配置 ====================
 # 自动获取桌面路径
 DESKTOP = Path.home() / "Desktop"
-INPUT_FOLDER = DESKTOP /  "新增資料夾 (2)" / "20260303" 
+INPUT_FOLDER = DESKTOP /  "20260331" / "20260331" 
 OUTPUT_FOLDER = DESKTOP
 
 # ==================== 产品映射表 ====================
@@ -55,10 +55,10 @@ PRODUCT_MAPPING = [
     ('MET', 'MET', '金屬指數', 'COMEX'),
     ('MBT', 'MBT', '迷你美債', 'CME'),
     ('TWN', 'TW', '台股指數', 'SIMEX'),
-    ('TOPIXM', 'TPXTOPIXM', '東證指數', 'TSE'),
+    ('TOPIXM', 'TOPIXM', '東證指數', 'TSE'),
     ('BTC', 'BTC', '比特幣', 'CME'),
     ('SIL', 'SIL', '微型白銀', 'COMEX'),
-    ('UC', 'UC', '人民幣指數', 'SIMEX'),
+    ('UC', 'UC', '离岸人民幣指數', 'SIMEX'),
     ('CT', 'CT', '棉花', 'NYBOT'),
     ('HO', 'HO', '熱燃油', 'NYMEX'),
     ('MEU', 'MEU', '歐盟指數', 'CME'),
@@ -68,7 +68,7 @@ PRODUCT_MAPPING = [
     ('W', 'W', '小麥', 'CBOT'),
     ('MCU', 'CA', '高級銅', 'COMEX'),
     ('GD', 'GD', '黃金', 'COMEX'),
-    ('SV', 'SI', '白銀', 'COMEX'),
+    ('SV', 'SV', '白銀', 'COMEX'),
     ('AD', '6A', '澳元', 'CME'),
     ('TY', 'ZN', '10年美債', 'CBOT'),
     ('CA', 'MCU', '高級銅', 'COMEX'),
@@ -81,38 +81,40 @@ PRODUCT_MAPPING = [
     ('COPPER', 'HG', '銅期貨', 'COMEX'),
     ('SGP', 'SGP', '新加坡交易所', 'SIMEX'),
     ('GIN', 'GIN', '印度Nifty 50指數', 'SIMEX'),
-    ('QM', 'QM', '微型原油期貨', 'NYMEX'),
+    ('QM', 'MINICRUDE', '微型原油期貨', 'NYMEX'),
     # 以下为根据对应表补充的新条目
-    # ('', 'C', '玉米期货', 'CBOT'),
+    ('C', 'C', '玉米期货', 'CBOT'),
     # ('', 'FV', '5年期美国国债期货', 'CBOT'),
     # ('', 'TU', '2年期美国国债期货', 'CBOT'),
     # ('', 'UB', '超长期美国国债期货', 'CBOT'),
-    # ('', 'US', '30年期美国国债期货', 'CBOT'),
-    # ('', 'ZC', '玉米期货', 'CBOT'),
+    ('US', 'US', '30年期美国国债期货', 'CBOT'),
+    ('ZC', 'ZC', '玉米期货', 'CBOT'),
     # ('', 'ZM', '豆粕期货', 'CBOT'),
     # ('', 'ZT', '2年期美国国债期货', 'CBOT'),
-    # ('', 'A', '澳元外汇期货', 'CME'),
+    ('6A', 'AD', '澳元外汇期货', 'CME'),
     # ('', 'BP', '英镑外汇期货', 'CME'),
     # ('', 'CD', '加元外汇期货', 'CME'),
-    # ('', 'CPO', '原油期货', 'CME'),
-    # ('', 'E7', '微型欧元外汇期货', 'CME'),
+    ('CPO', 'CPO', '原油期货', 'CME'),
+    ('E7', 'E7', '微型欧元外汇期货', 'CME'),
     # ('', 'ETH', '以太币期货', 'CME'),
     # ('', 'EU', '欧元外汇期货', 'CME'),
     # ('', 'EW', '欧元/英镑交叉汇率期货', 'CME'),
-    # ('', 'FC', '活牛期货', 'CME'),
+    ('FC', 'FC', '活牛期货', 'CME'),
     # ('', 'J7', '微型日元外汇期货', 'CME'),
     # ('', 'M2K', '微型罗素2000指数期货', 'CME'),
     # ('', 'MJY', '微型日元外汇期货', 'CME'),
     # ('', 'MSL', '微型白银期货', 'COMEX'),
-    # ('', 'NIY', '日经225指数期货', 'CME'),
+    ('NIY', 'NIY', '日经225指数（日元计价）期货', 'CME'),
     # ('', 'NK', '日经225指数期货', 'CME'),
     # ('', 'NZD', '新西兰元外汇期货', 'CME'),
     # ('', 'RTY', '罗素2000指数期货', 'CME'),
     # ('', 'RY', '罗素2000指数期货', 'CME'),
     # ('', 'SOL', '索拉纳币期货', 'CME'),
-    # ('', 'SW', '瑞士法郎外汇期货', 'CME'),
-    # ('', 'HGCP', '铜期货', 'COMEX'),
-    # ('', 'QO', '迷你黄金期货', 'COMEX'),
+    ('6S', 'S', '瑞士法郎外汇期货', 'CME'),
+    ('HGCP', 'HGCP', '铜期货', 'COMEX'),
+    ('HG', 'HGCP', '铜期货', 'COMEX'),
+    ('QO', 'QO', '迷你黄金期货', 'COMEX'),
+    ('MCL', 'MCL', '微型WTI原油期货', 'NYMEX'),
     # ('', 'EB', '欧元债券期货', 'EUREX'),
     # ('', 'FDAX', '德国DAX指数期货', 'EUREX'),
     # ('', 'FESX', '欧元Stoxx50指数期货', 'EUREX'),
@@ -122,19 +124,25 @@ PRODUCT_MAPPING = [
     # ('', 'GL', '黄金期货', 'LIFFE'),
     # ('', 'MAL', '铝合金期货', 'LME'),
     # ('', 'KC', '咖啡期货', 'NYBOT'),
-    # ('', 'OJ', '浓缩橙汁期货', 'NYBOT'),
+    ('OJ', 'OJ', '浓缩橙汁期货', 'NYBOT'),
     # ('', 'MCL', '微型原油期货', 'NYMEX'),
     # ('', 'MINICRUDE', '微型原油期货', 'NYMEX'),
     # ('', 'MININATGS', '迷你天然气期货', 'NYMEX'),
-    # ('', 'NG', '天然气期货', 'NYMEX'),
+    ('NG', 'NG', '天然气期货', 'NYMEX'),
+    ('DX', 'DX', '美元指数期货', 'ICUS'),
     # ('', 'PA', '钯金期货', 'NYMEX'),
     # ('', 'RB', '汽油期货', 'NYMEX'),
     # ('', 'MININK', '迷你日经225指数期货', 'OSE'),
     # ('', 'YT', '澳大利亚10年期国债期货', 'SFE'),
-    # ('', 'TF', '富时中国A50指数期货', 'SIMEX'),
+    ('TF', 'TF', '天然橡胶期货', 'SIMEX'),
+    ('KC', 'KC', '咖啡"C"期货', 'NYBOT'),
     # ('', 'IN', '印度卢比/美元外汇期货', 'SIMEX'),
     # ('', 'JRU', '橡胶期货', 'SIMEX'),
-    # ('', 'SG', '新加坡海峡时报指数期货', 'SIMEX'),
+    # ('', 'SG', '日经225指数期货（日元计价）', 'SIMEX'),
+    
+    
+
+    # ('NK', 'NK', '日经225指数（日元计价）期货', 'SIMEX'),
 ]
 
 # 构建映射字典
@@ -319,34 +327,63 @@ def parse_style4(df, filename):
 
 
 def parse_standard(df, filename):
-    """标准格式（包含所有必需列）"""
+    """标准格式（包含所有必需列）- 兼容多种列名变体"""
+    # 定义必需的列名（使用标准名称）
     required = ['client_no', 'com_type', 'exch_cd', 'com_cd', 'contract_date', 
                 'counter_party', 'traded_strike_price', 'call_put', 'closeout_qty']
+    
+    # 列名映射表（处理常见的列名变体）
+    column_mapping = {
+        'closedout_qty': 'closeout_qty',  # 处理拼写变体
+        'closeout_qty': 'closeout_qty',   # 标准名称
+        # 可以继续添加其他可能的变体
+    }
+    
+    # 应用列名映射
+    for old_name, new_name in column_mapping.items():
+        if old_name in df.columns and new_name not in df.columns:
+            df = df.rename(columns={old_name: new_name})
+    
+    # 检查所有必需列是否存在
     if all(c in df.columns for c in required):
         df_out = df[required].copy()
         df_out['source_file'] = filename
+        
+        # 添加 month_value_date 列（如果不存在）
         if 'month_value_date' not in df_out.columns:
             df_out['month_value_date'] = None
+            
         return df_out
+    
     return pd.DataFrame()
-
 
 # ==================== 数据处理函数 ====================
 def clean_product_code(code):
-    """清理产品代码（去除数字结尾的字符）"""
+    """清理产品代码（去除数字结尾的字符），返回option"""
     if pd.isna(code):
         return code
+    
     code = str(code).strip()
-    if code and code[-1].isdigit():
+    
+    # 如果代码为空或长度小于等于2，直接返回
+    if not code or len(code) <= 3:
+        return code
+    
+    # 如果代码中包含点号或空格，不做任何修改，直接返回原值
+    if '.' in code or ' ' in code:
+        return code
+    
+    # 检查最后一个字符是否为数字
+    if code[-1].isdigit():
         # 检查最后两位是否都是数字
-        if len(code) >= 2 and code[-2].isdigit():
-            # 结尾为2位数字，去除3个字符
+        if len(code) >= 3 and code[-2].isdigit():
+            # 结尾为2位数字，去除3个字符（最后两位数字）
             return code[:-3]
         else:
-            # 结尾为单数字，去除2个字符
+            # 结尾为单数字，去除2个字符（最后一位数字）
             return code[:-2]
+    
     return code
-
 
 
 def parse_contract_date(date_value):
@@ -501,7 +538,18 @@ def process_files():
     merged['closeout_qty'] = pd.to_numeric(merged['closeout_qty'], errors='coerce')
     merged = merged[merged['closeout_qty'].notna()]
     merged['counter_party'] = 'PSC0000'
-    merged['com_type'] = 'F'
+    
+    # 根据 com_cd 列设置 com_type
+    # 如果 com_cd 列存在，则根据是否包含点号或空格来设置 com_type
+    if 'com_cd' in merged.columns:
+        # 检查 com_cd 中是否包含点号或空格，包含则为 'O'，否则为 'F'
+        merged['com_type'] = merged['com_cd'].apply(
+            lambda x: 'O' if (isinstance(x, str) and ('.' in x )) else 'F'
+        )
+    else:
+        # 如果 com_cd 列不存在，设置默认值或根据需求处理
+        merged['com_type'] = 'F'  # 或设置为其他默认值
+    
     
     # 合并client_no列
     if 'Client_no' in merged.columns:
