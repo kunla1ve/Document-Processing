@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr  1 10:06:40 2026
-
-@author: hongl
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Tue Mar 31 21:06:46 2026
 
 @author: kunlave
@@ -16,7 +9,7 @@ Created on Tue Mar 31 21:06:46 2026
 PDF/Excel批量转换与合并工具
 将文件夹中的PDF表格和Excel文件转换为统一的CSV格式
 """
-
+import csv
 import pdfplumber
 import pandas as pd
 import numpy as np
@@ -28,128 +21,179 @@ from pathlib import Path
 # ==================== 配置 ====================
 # 自动获取桌面路径
 DESKTOP = Path.home() / "Desktop"
-INPUT_FOLDER = DESKTOP /  "20260331" / "20260331" 
+INPUT_FOLDER = DESKTOP /  "新增資料夾 (2)" / "20260304" 
 OUTPUT_FOLDER = DESKTOP
+mapping_csv_path  = DESKTOP / 'contract_spec1_updated.csv'
 
 # ==================== 产品映射表 ====================
-#(Globex代码 -> ClearPort旧码)
-PRODUCT_MAPPING = [
-    ('SI', 'SV', '白銀', 'COMEX'),
-    ('MGC', 'MGC', '微型黃金', 'COMEX'),
-    ('6B', 'BP', '英鎊', 'CME'),
-    ('QG', 'QG', '迷你天然氣', 'NYMEX'),
-    ('CL', 'CL', '輕原油', 'NYMEX'),
-    ('CN', 'CN', '富时中国A50', 'SIMEX'),
-    ('NQ', 'NQ', '迷你納指', 'CME'),
-    ('E-MINI S&P', 'E-MINI S&P', '迷你標普', 'CME'),
-    ('YM', 'YM', '小道瓊', 'CBOT'),
-    ('MYM', 'MYM', '微型道瓊', 'CBOT'),
-    ('ZB', 'US', '30年美債', 'CBOT'),
-    ('6A', 'AD', '澳元', 'CME'),
-    ('ES', 'E-MINI S&P', '迷你標普', 'CME'),
-    ('MES', 'MES', '微型標普', 'CME'),
-    ('MNQ', 'MNQ', '微型納指', 'CME'),
-    ('GC', 'GD', '黃金', 'COMEX'),
-    ('QI', 'QI', '迷你白銀', 'COMEX'),
-    ('PL', 'PL', '鉑金', 'NYMEX'),
-    ('MET', 'MET', '金屬指數', 'COMEX'),
-    ('MBT', 'MBT', '迷你美債', 'CME'),
-    ('TWN', 'TW', '台股指數', 'SIMEX'),
-    ('TOPIXM', 'TOPIXM', '東證指數', 'TSE'),
-    ('BTC', 'BTC', '比特幣', 'CME'),
-    ('SIL', 'SIL', '微型白銀', 'COMEX'),
-    ('UC', 'UC', '离岸人民幣指數', 'SIMEX'),
-    ('CT', 'CT', '棉花', 'NYBOT'),
-    ('HO', 'HO', '熱燃油', 'NYMEX'),
-    ('MEU', 'MEU', '歐盟指數', 'CME'),
-    ('ZN', 'TY', '10年美債', 'CBOT'),
-    ('JY', 'JY', '日圓', 'CME'),
-    ('BO', 'BO', '黃豆油', 'CBOT'),
-    ('W', 'W', '小麥', 'CBOT'),
-    ('MCU', 'CA', '高級銅', 'COMEX'),
-    ('GD', 'GD', '黃金', 'COMEX'),
-    ('SV', 'SV', '白銀', 'COMEX'),
-    ('AD', '6A', '澳元', 'CME'),
-    ('TY', 'ZN', '10年美債', 'CBOT'),
-    ('CA', 'MCU', '高級銅', 'COMEX'),
-    ('SM', 'SM', '瘦豬期貨', 'CME'),
-    ('S', 'S', '黃豆期貨', 'CBOT'),
-    ('LC', 'LC', '活牛期貨', 'CME'),
-    ('LH', 'LH', '瘦肉豬期貨', 'CME'),
-    ('SB', 'SB', '糖11號期貨', 'NYBOT'),
-    ('B', 'B', '布蘭特原油', 'ICEU'),
-    ('COPPER', 'HG', '銅期貨', 'COMEX'),
-    ('SGP', 'SGP', '新加坡交易所', 'SIMEX'),
-    ('GIN', 'GIN', '印度Nifty 50指數', 'SIMEX'),
-    ('QM', 'MINICRUDE', '微型原油期貨', 'NYMEX'),
-    # 以下为根据对应表补充的新条目
-    ('C', 'C', '玉米期货', 'CBOT'),
-    # ('', 'FV', '5年期美国国债期货', 'CBOT'),
-    # ('', 'TU', '2年期美国国债期货', 'CBOT'),
-    # ('', 'UB', '超长期美国国债期货', 'CBOT'),
-    ('US', 'US', '30年期美国国债期货', 'CBOT'),
-    ('ZC', 'ZC', '玉米期货', 'CBOT'),
-    # ('', 'ZM', '豆粕期货', 'CBOT'),
-    # ('', 'ZT', '2年期美国国债期货', 'CBOT'),
-    ('6A', 'AD', '澳元外汇期货', 'CME'),
-    # ('', 'BP', '英镑外汇期货', 'CME'),
-    # ('', 'CD', '加元外汇期货', 'CME'),
-    ('CPO', 'CPO', '原油期货', 'CME'),
-    ('E7', 'E7', '微型欧元外汇期货', 'CME'),
-    # ('', 'ETH', '以太币期货', 'CME'),
-    # ('', 'EU', '欧元外汇期货', 'CME'),
-    # ('', 'EW', '欧元/英镑交叉汇率期货', 'CME'),
-    ('FC', 'FC', '活牛期货', 'CME'),
-    # ('', 'J7', '微型日元外汇期货', 'CME'),
-    # ('', 'M2K', '微型罗素2000指数期货', 'CME'),
-    # ('', 'MJY', '微型日元外汇期货', 'CME'),
-    # ('', 'MSL', '微型白银期货', 'COMEX'),
-    ('NIY', 'NIY', '日经225指数（日元计价）期货', 'CME'),
-    # ('', 'NK', '日经225指数期货', 'CME'),
-    # ('', 'NZD', '新西兰元外汇期货', 'CME'),
-    # ('', 'RTY', '罗素2000指数期货', 'CME'),
-    # ('', 'RY', '罗素2000指数期货', 'CME'),
-    # ('', 'SOL', '索拉纳币期货', 'CME'),
-    ('6S', 'S', '瑞士法郎外汇期货', 'CME'),
-    ('HGCP', 'HGCP', '铜期货', 'COMEX'),
-    ('HG', 'HGCP', '铜期货', 'COMEX'),
-    ('QO', 'QO', '迷你黄金期货', 'COMEX'),
-    ('MCL', 'MCL', '微型WTI原油期货', 'NYMEX'),
-    # ('', 'EB', '欧元债券期货', 'EUREX'),
-    # ('', 'FDAX', '德国DAX指数期货', 'EUREX'),
-    # ('', 'FESX', '欧元Stoxx50指数期货', 'EUREX'),
-    # ('', 'FGBM', '德国长期债券期货', 'EUREX'),
-    # ('', 'BC', '布伦特原油期货', 'IPE'),
-    # ('', 'PO', '棕榈油期货', 'KLCE'),
-    # ('', 'GL', '黄金期货', 'LIFFE'),
-    # ('', 'MAL', '铝合金期货', 'LME'),
-    # ('', 'KC', '咖啡期货', 'NYBOT'),
-    ('OJ', 'OJ', '浓缩橙汁期货', 'NYBOT'),
-    # ('', 'MCL', '微型原油期货', 'NYMEX'),
-    # ('', 'MINICRUDE', '微型原油期货', 'NYMEX'),
-    # ('', 'MININATGS', '迷你天然气期货', 'NYMEX'),
-    ('NG', 'NG', '天然气期货', 'NYMEX'),
-    ('DX', 'DX', '美元指数期货', 'ICUS'),
-    # ('', 'PA', '钯金期货', 'NYMEX'),
-    # ('', 'RB', '汽油期货', 'NYMEX'),
-    # ('', 'MININK', '迷你日经225指数期货', 'OSE'),
-    # ('', 'YT', '澳大利亚10年期国债期货', 'SFE'),
-    ('TF', 'TF', '天然橡胶期货', 'SIMEX'),
-    ('KC', 'KC', '咖啡"C"期货', 'NYBOT'),
-    # ('', 'IN', '印度卢比/美元外汇期货', 'SIMEX'),
-    # ('', 'JRU', '橡胶期货', 'SIMEX'),
-    # ('', 'SG', '日经225指数期货（日元计价）', 'SIMEX'),
+# #(Globex代码 -> ClearPort代码)
+# PRODUCT_MAPPING = [
+#     ('SI', 'SV', '白銀', 'COMEX'),
+#     ('MGC', 'MGC', '微型黃金', 'COMEX'),
+#     ('6B', 'BP', '英鎊', 'CME'),
+#     ('QG', 'QG', '迷你天然氣', 'NYMEX'),
+#     ('CL', 'CL', '輕原油', 'NYMEX'),
+#     ('CN', 'CN', '富时中国A50', 'SIMEX'),
+#     ('NQ', 'NQ', '迷你納指', 'CME'),
+#     ('E-MINI S&P', 'E-MINI S&P', '迷你標普', 'CME'),
+#     ('YM', 'YM', '小道瓊', 'CBOT'),
+#     ('MYM', 'MYM', '微型道瓊', 'CBOT'),
+#     ('ZB', 'US', '30年美債', 'CBOT'),
+#     ('ES', 'E-MINI S&P', '迷你標普', 'CME'),
+#     ('MES', 'MES', '微型標普', 'CME'),
+#     ('MNQ', 'MNQ', '微型納指', 'CME'),
+#     ('GC', 'GD', '黃金', 'COMEX'),
+#     ('QI', 'QI', '迷你白銀', 'COMEX'),
+#     ('PL', 'PL', '鉑金', 'NYMEX'),
+#     ('MET', 'MET', '？？？？？', 'COMEX'),
+#     ('MBT', 'MBT', '微型比特币期货', 'CME'),
+#     ('TWN', 'TW', '台股指數', 'SIMEX'),
+#     ('TOPIXM', 'TOPIXM', '東證指數', 'TSE'),
+#     ('BTC', 'BTC', '比特幣', 'CME'),
+#     ('SIL', 'SIL', '微型白銀', 'COMEX'),
+#     ('UC', 'UC', '离岸人民幣指數', 'SIMEX'),
+#     ('CT', 'CT', '棉花', 'NYBOT'),
+#     ('HO', 'HO', '熱燃油', 'NYMEX'),
+#     ('MEU', 'MEU', '？？？', 'CME'),
+#     ('ZN', 'TY', '10年美債', 'CBOT'),
+#     ('JY', 'JY', '日圓', 'CME'),
+#     ('BO', 'BO', '黃豆油', 'CBOT'),
+#     ('W', 'W', '小麥', 'CBOT'),
+#     # ('MCU', 'CA', '高級銅', 'COMEX'),
+#     ('GD', 'GD', '黃金', 'COMEX'),
+#     ('SV', 'SV', '白銀', 'COMEX'),
+#     ('TY', 'ZN', '10年美債', 'CBOT'),
+#     # ('CA', 'MCU', '高級銅', 'COMEX'),
+#     ('SM', 'SM', '瘦豬期貨', 'CME'),
+#     ('S', 'S', '黃豆期貨', 'CBOT'),
+#     ('LC', 'LC', '活牛期貨', 'CME'),
+#     ('LH', 'LH', '瘦肉豬期貨', 'CME'),
+#     ('SB', 'SB', '糖11號期貨', 'NYBOT'),
+#     ('B', 'B', '布蘭特原油', 'ICEU'),
+#     # ('COPPER', 'HG', '銅期貨', 'COMEX'),
+#     ('GIN', 'GIN', '印度Nifty 50指數', 'SIMEX'),
+#     ('QM', 'MINICRUDE', '微型原油期貨', 'NYMEX'),
+#     # 以下为根据对应表补充的新条目
+#     ('C', 'C', '玉米期货', 'CBOT'),
+#     # ('', 'FV', '5年期美国国债期货', 'CBOT'),
+#     ('TU', 'TU', '2年期美国国债期货', 'CBOT'),
+#     ('UB', 'UBE', '超长期美国国债期货', 'CBOT'),
+#     ('US', 'US', '30年期美国国债期货', 'CBOT'),
+#     ('ZC', 'ZC', '玉米期货', 'CBOT'),
+#     # ('', 'ZM', '豆粕期货', 'CBOT'),
+#     # ('', 'ZT', '2年期美国国债期货', 'CBOT'),
+#     ('6A', 'AD', '澳元外汇期货', 'CME'),
+#     # ('', 'BP', '英镑外汇期货', 'CME'),
+#     # ('', 'CD', '加元外汇期货', 'CME'),
+#     ('CPO', 'CPO', '原油期货', 'CME'),
+#     ('E7', 'E7', '微型欧元外汇期货', 'CME'),
+#     # ('', 'ETH', '以太币期货', 'CME'),
+#     # ('', 'EU', '欧元外汇期货', 'CME'),
+#     # ('', 'EW', '欧元/英镑交叉汇率期货', 'CME'),
+#     ('FC', 'FC', '活牛期货', 'CME'),
+#     # ('', 'J7', '微型日元外汇期货', 'CME'),
+#     # ('', 'M2K', '微型罗素2000指数期货', 'CME'),
+#     # ('', 'MJY', '微型日元外汇期货', 'CME'),
+#     # ('', 'MSL', '微型白银期货', 'COMEX'),
+#     ('NIY', 'NIY', '日经225指数（日元计价）期货', 'CME'),
+#     # ('', 'NK', '日经225指数期货', 'CME'),
+#     ('NZD', 'NZD', '纽元/美元期货', 'CME'),
+#     ('RTY', 'RTY', '小型罗素2000指数期货', 'CME'),
+#     # ('', 'RY', '罗素2000指数期货', 'CME'),
+#     # ('', 'SOL', '索拉纳币期货', 'CME'),
+#     ('6S', 'S', '瑞士法郎外汇期货', 'CME'),
+#     ('HGCP', 'HGCP', '铜期货', 'COMEX'),
+#     ('HG', 'HGCP', '铜期货', 'COMEX'),
+#     ('QO', 'QO', '迷你黄金期货', 'COMEX'),
+#     ('MCL', 'MCL', '微型WTI原油期货', 'NYMEX'),
+#     ('EB', 'EB', '3个月欧元短期利率期货', 'EUREX'),
+#     # ('', 'FDAX', '德国DAX指数期货', 'EUREX'),
+#     # ('', 'FESX', '欧元Stoxx50指数期货', 'EUREX'),
+#     # ('', 'FGBM', '德国长期债券期货', 'EUREX'),
+#     # ('', 'BC', '布伦特原油期货', 'IPE'),
+#     # ('', 'PO', '棕榈油期货', 'KLCE'),
+#     # ('', 'GL', '黄金期货', 'LIFFE'),
+#     # ('', 'MAL', '铝合金期货', 'LME'),
+#     # ('', 'KC', '咖啡期货', 'NYBOT'),
+#     ('OJ', 'OJ', '浓缩橙汁期货', 'NYBOT'),
+#     # ('', 'MCL', '微型原油期货', 'NYMEX'),
+#     # ('', 'MINICRUDE', '微型原油期货', 'NYMEX'),
+#     # ('', 'MININATGS', '迷你天然气期货', 'NYMEX'),
+#     ('NG', 'NG', '天然气期货', 'NYMEX'),
+#     ('DX', 'DX', '美元指数期货', 'ICUS'),
+#     # ('', 'PA', '钯金期货', 'NYMEX'),
+#     ('RB', 'RB', 'RBOB汽油期货', 'NYMEX'),
+#     # ('', 'MININK', '迷你日经225指数期货', 'OSE'),
+#     # ('', 'YT', '澳大利亚10年期国债期货', 'SFE'),
+#     ('TF', 'TF', '天然橡胶期货', 'SIMEX'),
+#     ('KC', 'KC', '咖啡"C"期货', 'NYBOT'),
+#     # ('', 'IN', '印度卢比/美元外汇期货', 'SIMEX'),
+#     # ('', 'JRU', '橡胶期货', 'SIMEX'),
+#     # ('', 'SG', '日经225指数期货（日元计价）', 'SIMEX'),
+#     ('SGP', 'SGP', '？？？？？', 'SIMEX'),
     
     
 
-    # ('NK', 'NK', '日经225指数（日元计价）期货', 'SIMEX'),
-]
+#     # ('NK', 'NK', '日经225指数（日元计价）期货', 'SIMEX'),
 
-# 构建映射字典
-GLOBEX_TO_CLEARPORT = {g: c for g, c, _, _ in PRODUCT_MAPPING}
-GLOBEX_TO_PRODUCT = {g: p for g, _, p, _ in PRODUCT_MAPPING}
-GLOBEX_TO_EXCH = {g: e for g, _, _, e in PRODUCT_MAPPING}
+# ]
 
+# # 构建映射字典
+# GLOBEX_TO_CLEARPORT = {g: c for g, c, _, _ in PRODUCT_MAPPING}
+# GLOBEX_TO_PRODUCT = {g: p for g, _, p, _ in PRODUCT_MAPPING}
+# GLOBEX_TO_EXCH = {g: e for g, _, _, e in PRODUCT_MAPPING}
+
+
+
+
+def load_mapping(csv_file_path):
+    """加载CSV文件并构建多个映射字典，将各种输入键映射到(CQ Exchange, CQ Code, Product Name)"""
+    # 存储各种映射：key -> (CQ Exchange, CQ Code, Product Name)
+    # key的格式为 (exchange, code) 的元组
+    exchange_code_to_info = {}
+
+    with open(csv_file_path, mode='r', encoding='utf-8-sig') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            cq_ex = row['CQ Exchange'].strip()
+            cq_code = row['CQ Code'].strip()
+            product_name = row['Product Name'].strip()
+            
+            if not cq_ex or not cq_code:
+                continue
+
+            # 1. CQ Exchange + CQ Code 本身
+            key_cq = (row['CQ Exchange'].strip(), row['CQ Code'].strip())
+            exchange_code_to_info[key_cq] = (cq_ex, cq_code, product_name)
+
+            # 2. ES Exchange + ES Code
+            es_ex = row['ES Exchange'].strip()
+            es_code = row['ES Code'].strip()
+            if es_ex and es_code:
+                exchange_code_to_info[(es_ex, es_code)] = (cq_ex, cq_code, product_name)
+
+            # 3. EX Exchange + EX Code
+            ex_ex = row['EX Exchange'].strip()
+            ex_code = row['EX Code'].strip()
+            if ex_ex and ex_code:
+                exchange_code_to_info[(ex_ex, ex_code)] = (cq_ex, cq_code, product_name)
+
+            # 4. SP Code 有四个字段：SP Code, SP Code 1, SP Code 2, SP Code 3
+            # 注意：SP Exchange 可能与 SP Code 配对
+            sp_ex = row['SP Exchange'].strip()
+            sp_codes = [
+                row['SP Code'].strip(),
+                row['SP Code 1'].strip(),
+                row['SP Code 2'].strip(),
+                row['SP Code 3'].strip()
+            ]
+            # 对于每个有效的 SP Code，如果 SP Exchange 存在，则建立映射
+            if sp_ex:
+                for spc in sp_codes:
+                    if spc and spc != '-':
+                        exchange_code_to_info[(sp_ex, spc)] = (cq_ex, cq_code, product_name)
+
+    return exchange_code_to_info
 
 # ==================== PDF处理 ====================
 def pdf_to_dataframes(pdf_path):
@@ -435,18 +479,41 @@ def parse_contract_date(date_value):
         return None
 
 
-def apply_product_mapping(df):
-    """应用产品映射"""
-    # 先清理代码
-    df['com_cd'] = df['com_cd'].apply(clean_product_code)
+# def apply_product_mapping(df):
+#     """应用产品映射"""
     
-    # 应用映射
-    df['exch_cd'] = df['com_cd'].map(GLOBEX_TO_EXCH).fillna(df.get('exch_cd', ''))
-    df['product_name'] = df['com_cd'].map(GLOBEX_TO_PRODUCT).fillna('')
-    df['after_map_com_cd'] = df['com_cd'].map(GLOBEX_TO_CLEARPORT)
+#     # 应用映射
+#     df['exch_cd'] = df['com_cd'].map(GLOBEX_TO_EXCH).fillna(df.get('exch_cd', ''))
+#     df['product_name'] = df['com_cd'].map(GLOBEX_TO_PRODUCT).fillna('')
+#     df['after_map_com_cd'] = df['com_cd'].map(GLOBEX_TO_CLEARPORT)
+    
+#     return df
+def add_mapping_info_to_df(df, mapping_csv_path):
+    """
+    为DataFrame添加映射信息
+    参数:
+        df: 包含 exch_cd 和 com_cd 列的DataFrame
+        mapping_csv_path: 映射CSV文件路径
+    返回:
+        添加了 product_name 和 after_map_com_cd 列的DataFrame
+    """
+    # 加载映射
+    mapping = load_mapping(mapping_csv_path)
+    
+    
+    # 遍历每一行进行匹配
+    for idx, row in df.iterrows():
+        exch = str(row['exch_cd']).strip().upper() if pd.notna(row['exch_cd']) else ''
+        code = str(row['com_cd']).strip().upper() if pd.notna(row['com_cd']) else ''
+        
+        if exch and code:
+            key = (exch, code)
+            if key in mapping:
+                cq_ex, cq_code, product_name = mapping[key]
+                df.at[idx, 'product_name'] = product_name
+                df.at[idx, 'after_map_com_cd'] = cq_code
     
     return df
-
 
 # ==================== 主处理流程 ====================
 def process_files():
@@ -566,8 +633,17 @@ def process_files():
     drop_cols = ['month_value_date', 'month', 'traded_strike_price', 'call_put']
     merged = merged.drop([c for c in drop_cols if c in merged.columns], axis=1)
     
-    # 应用产品映射
-    merged = apply_product_mapping(merged)
+    # 先清理代码
+    merged['com_cd'] = merged['com_cd'].apply(clean_product_code)
+    
+    # # 应用产品映射
+    # merged = apply_product_mapping(merged)
+    
+    
+    # 添加映射信息
+    merged = add_mapping_info_to_df(merged, mapping_csv_path)   
+    
+    
     
     # 调整列顺序
     col_order = ['source_file','product_name',  'after_map_com_cd', 'client_no','com_cd',
