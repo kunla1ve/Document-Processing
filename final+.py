@@ -21,9 +21,10 @@ from pathlib import Path
 # ==================== 配置 ====================
 # 自动获取桌面路径
 DESKTOP = Path.home() / "Desktop"
-INPUT_FOLDER = DESKTOP /  "新增資料夾 (2)" / "20260304" 
+# INPUT_FOLDER = DESKTOP /  "新增資料夾 " / "20260408" 
+INPUT_FOLDER = DESKTOP /   "20260417" 
 OUTPUT_FOLDER = DESKTOP
-mapping_csv_path  = DESKTOP / 'contract_spec1_updated.csv'
+mapping_csv_path  = DESKTOP / 'closeout refer' /'contract_spec1_updated.csv'
 
 
 
@@ -174,7 +175,7 @@ def extract_style1(df, start_idx, filename):
             if exch and com and qty and str(qty) not in ['nan', '-']:
                 try:
                     rows.append({
-                        'exch_cd': exch, 'com_cd': com, 'contract_date': row.iloc[3],
+                        'exch_cd': exch, 'com_cd': com, 'contract_date': int(str(row.iloc[3]+row.iloc[4])),
                         'closeout_qty': float(qty), 'source_file': filename,
                         'com_type': None, 'client_no': None, 'counter_party': None,
                         'traded_strike_price': None, 'call_put': None, 'month_value_date': None
@@ -230,8 +231,17 @@ def parse_style3(df, filename):
     return pd.DataFrame()
 
 
+
 def parse_style4(df, filename):
-    """标准Account Number格式"""
+    """标准Account Number格式 - 自动处理合并单元格"""
+
+    # 将空字符串也转换为 NaN，然后前向填充！！！！
+    df = df.replace('', pd.NA)
+    df = df.replace(r'^\s*$', pd.NA, regex=True)
+    
+    # 前向填充所有列（不判断dtype，直接填充）
+    df = df.fillna(method='ffill')
+    
     required = ['Market', 'Product Name', 'Closeout Quantity']
     if all(c in df.columns for c in required):
         rows = []
@@ -239,11 +249,18 @@ def parse_style4(df, filename):
             try:
                 if pd.notna(row['Market']) and pd.notna(row['Product Name']):
                     rows.append({
-                        'exch_cd': row['Market'], 'com_cd': row['Product Name'], 'contract_date': None,
-                        'closeout_qty': float(row['Closeout Quantity']), 'source_file': filename,
-                        'com_type': None, 'client_no': row.get('Account Number'),
-                        'counter_party': None, 'traded_strike_price': None, 'call_put': None,
-                        'month_value_date': row.get('Month/Value Date'), 'month': None
+                        'exch_cd': row['Market'], 
+                        'com_cd': row['Product Name'], 
+                        'contract_date': None,
+                        'closeout_qty': float(row['Closeout Quantity']), 
+                        'source_file': filename,
+                        'com_type': None, 
+                        'client_no': row.get('Account Number'),
+                        'counter_party': None, 
+                        'traded_strike_price': None, 
+                        'call_put': None,
+                        'month_value_date': row.get('Month/Value Date'), 
+                        'month': None
                     })
             except:
                 pass
@@ -313,7 +330,7 @@ def clean_product_code(code):
 
 
 def parse_contract_date(date_value):
-    """将日期转换为标准合约代码（如M2026）"""
+    """将日期转换为标准合约代码期货（如M2026）"""
     month_map = {1: 'F', 2: 'G', 3: 'H', 4: 'J', 5: 'K', 6: 'M',
                  7: 'N', 8: 'Q', 9: 'U', 10: 'V', 11: 'X', 12: 'Z'}
     month_3letter = {'JAN': 'F', 'FEB': 'G', 'MAR': 'H', 'APR': 'J', 'MAY': 'K', 'JUN': 'M',
@@ -359,9 +376,56 @@ def parse_contract_date(date_value):
         return f"{month_map[d.month]}{d.year}"
     except:
         return None
+    try:
+        d = pd.to_datetime(date_str)
+        return f"{month_map[d.month]}{d.year}"
+    except:
+        return None
 
-
-
+# def parse_contract_date(date_value):
+#     """将日期转换为标准合约代码期货（如M2026）"""
+#     month_map = {1: 'F', 2: 'G', 3: 'H', 4: 'J', 5: 'K', 6: 'M',
+#                  7: 'N', 8: 'Q', 9: 'U', 10: 'V', 11: 'X', 12: 'Z'}
+#     month_3letter = {'JAN': 'F', 'FEB': 'G', 'MAR': 'H', 'APR': 'J', 'MAY': 'K', 'JUN': 'M',
+#                      'JUL': 'N', 'AUG': 'Q', 'SEP': 'U', 'OCT': 'V', 'NOV': 'X', 'DEC': 'Z'}
+    
+#     if pd.isna(date_value):
+#         return None
+    
+#     date_str = str(date_value).strip()
+    
+#     # 已是标准格式
+#     if re.match(r'^[A-Z]\d{4}$', date_str):
+#         return date_str
+    
+#     # Excel数字日期
+#     if date_str.replace('.', '').isdigit() and len(date_str) >= 5:
+#         try:
+#             d = pd.to_datetime('1899-12-30') + pd.Timedelta(days=int(float(date_str)))
+#             return f"{month_map[d.month]}{d.year}"
+#         except:
+#             pass
+    
+#     # 2604, 2606 格式
+#     if date_str.isdigit() and len(date_str) == 4:
+#         return f"{month_map.get(int(date_str[2:]), '')}20{date_str[:2]}"
+    
+#     # 202604, 202606 格式
+#     if date_str.isdigit() and len(date_str) == 6:
+#         return f"{month_map.get(int(date_str[4:]), '')}{date_str[:4]}"
+    
+#     # 三字母月份
+#     for m3, mcode in month_3letter.items():
+#         if m3 in date_str.upper():
+#             year_match = re.search(r'\d{2,4}', date_str)
+#             if year_match:
+#                 y = year_match.group()
+#                 y = y if len(y) == 4 else f'20{y}'
+#                 return f"{mcode}{y}"
+    
+    # 标准日期解析
+    
+    
 def add_mapping_info_to_df(df, mapping_csv_path):
     """
     为DataFrame添加映射信息
@@ -480,6 +544,8 @@ def process_files():
     merged = merged[merged['closeout_qty'].notna()]
     merged['counter_party'] = 'PSC0000'
     
+    merged['exch_cd'] = merged['exch_cd'].replace('SIMEX', 'SGX')
+    
     # 根据 com_cd 列设置 com_type
     # 如果 com_cd 列存在，则根据是否包含点号或空格来设置 com_type
     if 'com_cd' in merged.columns:
@@ -501,10 +567,16 @@ def process_files():
     for col in ['contract_date', 'month', 'month_value_date']:
         if col in merged.columns:
             merged['contract_date'] = merged['contract_date'].fillna(merged[col])
-    merged['contract_date'] = merged['contract_date'].apply(parse_contract_date)
+
+
+
+    # 只有当 com_type 为 'F' 时，才对 contract_date 应用 parse_contract_date 函数
+    if 'com_type' in merged.columns:
+        mask = merged['com_type'] == 'F'
+        merged.loc[mask, 'contract_date'] = merged.loc[mask, 'contract_date'].apply(parse_contract_date)
     
     # 删除不需要的列
-    drop_cols = ['month_value_date', 'month', 'traded_strike_price', 'call_put']
+    drop_cols = ['month_value_date', 'month' ]
     merged = merged.drop([c for c in drop_cols if c in merged.columns], axis=1)
     
     # 先清理代码
@@ -517,8 +589,8 @@ def process_files():
     
     
     # 调整列顺序
-    col_order = ['source_file','product_name',  'after_map_com_cd', 'client_no','com_cd',
-                  'exch_cd', 'com_type','contract_date',  'counter_party','closeout_qty']
+    col_order = ['source_file','product_name',  'after_map_com_cd', 'client_no','com_type','exch_cd', 'com_cd',
+                  'contract_date',  'counter_party','traded_strike_price', 'call_put','closeout_qty']
     final_cols = col_order + [c for c in merged.columns if c not in col_order]
     merged = merged[final_cols]
     
